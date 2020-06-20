@@ -10,8 +10,13 @@
 #define COLOR_ORDER GRB
 CRGB leds[NUM_STRIPS][NUM_LEDS];
 
-#define UPDATES_PER_SECOND 10
+#define UPDATES_PER_SECOND 100
+#define RAINBOW_PER_SECOND 50
 
+int hue = 1;
+boolean isHueIncreasing = true;
+
+int rainbowCount = 0;
 
 void setup() {
   // put your setup code here, to run once:
@@ -22,16 +27,48 @@ void setup() {
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  setWhite();
+
+  if(millis() % RAINBOW_PER_SECOND == 0){
+    rainbowCount++;
+  }
+  
+  if(hue > 255){
+    isHueIncreasing = false;
+  }
+  else if(hue < 0){
+    isHueIncreasing = true;
+  }
+  if(isHueIncreasing){
+    hue++;
+  }
+  else{
+    hue--;
+  }
+  
+  setRainbowWithWhite(0, rainbowCount);
+  setRainbowWithWhite(1, rainbowCount);
   FastLED.show();
-  delay(1000/UPDATES_PER_SECOND)
+  delay(1000/UPDATES_PER_SECOND);
 }
 
-void setWhite(){
+void setWhite(int stripNum){
+  for(int j = 0; j < NUM_LEDS; j++){
+    leds[stripNum][j] = CRGB::White;
+  }
+}
+
+void setRainbow(){
+
   for(int i = 0; i < NUM_STRIPS; i++){
     for(int j = 0; j < NUM_LEDS; j++){
-      leds[i][j] = CRGB::White;
+      leds[i][j].setHue(hue);
     }
+  }
+}
+
+void setRainbowWithWhite(int stripNum, int numLED){
+  setWhite(stripNum);
+  for(int i = 0; i < numLED; i++){
+    leds[stripNum][i].setHue(hue);
   }
 }
