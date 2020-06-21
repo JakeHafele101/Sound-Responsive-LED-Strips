@@ -11,19 +11,24 @@
 #define LED_STRIP_8 9
 #define LED_STRIP_9 10
 
-#define THRESHHOLD 124
+#define THRESHHOLD 100
 
 #define NUM_STRIPS 9
 #define NUM_LEDS 10
-#define BRIGHTNESS 255
+#define BRIGHTNESS 100
 #define LED_TYPE    WS2812B
 #define COLOR_ORDER GRB
 CRGB leds[NUM_STRIPS][NUM_LEDS];
 
-#define UPDATES_PER_SECOND 100
+#define LED_WAIT 100
 
 int hue = 1;
 boolean isHueIncreasing = true;
+
+int hasChangedCount = 0;
+boolean hasChanged = false;
+
+int rainbowNum[STRIP_NUM];
 
 void setup() {
   delay(3000); // power-up safety delay
@@ -40,10 +45,19 @@ void setup() {
   pinMode(SOUND_ANALOG, INPUT);
 
   FastLED.setBrightness(BRIGHTNESS);
+
+  for(int i = 0; i < NUM_STRIPS; i++){ //Sets rainbow LED to 1 for first loop of strip
+    rainbowNum[i] = 1;
+  }
 }
 
 void loop() {
   int sound = analogRead(SOUND_ANALOG);
+  
+//  if(sound > THRESHHOLD + 10 || sound < THRESHHOLD - 10){
+//    Serial.print(sound);
+//    Serial.print("\n");
+//  }
   Serial.print(sound);
   Serial.print("\n");
 
@@ -60,15 +74,40 @@ void loop() {
     hue--;
   }
 
-  for(int i = 0; i < NUM_STRIPS; i++){ //Sets basic start with one led on each row on
-    setRainbowWithWhite(i,1);
+  if(!hasChanged){
+    if(sound > THRESHHOLD + 15 || sound < THRESHHOLD - 15){
+      rainbowNum[0] = 5;
+      hasChanged = true;
+      hasChangedCount = 0;
+    }
+    else if((sound > THRESHHOLD + 5 || sound < THRESHHOLD - 5) && rainbowNum[0] < 3){
+      rainbowNum[0] = 3;
+      hasChanged = true;
+      hasChangedCount = 0;
+    }
+    else{
+      rainbowNum[0]--;
+      hasChanged = true;
+      hasChangedCount = 0;
+    }
   }
 
-  if(sound > THRESHHOLD + 5 || sound < THRESHHOLD - 5){
-    
+  if(rainbowNum[0] < 1){
+    rainbowNum[0] = 1;
   }
   
+  setRainbowWithWhite(0, rainbowNum[0]);
+
+  if(hasChanged){
+    hasChangedCount++;
+  }
+  if(hasChangedCount > LED_WAIT){
+    hasChangedCount = 0;
+    hasChanged = false;
+  }
+
   FastLED.show();
+  
 }
 
 void setWhite(int stripNum){
