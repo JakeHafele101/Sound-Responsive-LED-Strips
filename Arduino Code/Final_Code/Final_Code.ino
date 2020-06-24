@@ -1,6 +1,6 @@
 #include <FastLED.h>
   
-#define SOUND_ANALOG 23 //A0
+#define SOUND_GATE 13
 #define LED_STRIP_1 2
 #define LED_STRIP_2 3
 #define LED_STRIP_3 4
@@ -11,16 +11,17 @@
 #define LED_STRIP_8 9
 #define LED_STRIP_9 10
 
-#define THRESHHOLD 100
+#define THRESHHOLD 25
 
 #define NUM_STRIPS 9
 #define NUM_LEDS 10
-#define BRIGHTNESS 100
+#define BRIGHTNESS 50
 #define LED_TYPE    WS2812B
 #define COLOR_ORDER GRB
 CRGB leds[NUM_STRIPS][NUM_LEDS];
 
-#define LED_WAIT 100
+#define LED_WAIT 25
+#define HUE_WAIT 5
 
 int hue = 1;
 boolean isHueIncreasing = true;
@@ -28,7 +29,7 @@ boolean isHueIncreasing = true;
 int hasChangedCount = 0;
 boolean hasChanged = false;
 
-int rainbowNum[STRIP_NUM];
+int rainbowNum[NUM_STRIPS];
 
 void setup() {
   delay(3000); // power-up safety delay
@@ -42,7 +43,7 @@ void setup() {
   FastLED.addLeds<LED_TYPE, LED_STRIP_7, COLOR_ORDER>(leds[6], NUM_LEDS);
   FastLED.addLeds<LED_TYPE, LED_STRIP_8, COLOR_ORDER>(leds[7], NUM_LEDS);
   FastLED.addLeds<LED_TYPE, LED_STRIP_9, COLOR_ORDER>(leds[8], NUM_LEDS);
-  pinMode(SOUND_ANALOG, INPUT);
+  pinMode(SOUND_GATE, INPUT);
 
   FastLED.setBrightness(BRIGHTNESS);
 
@@ -52,51 +53,128 @@ void setup() {
 }
 
 void loop() {
-  int sound = analogRead(SOUND_ANALOG);
+  int gate = digitalRead(SOUND_GATE);
   
-//  if(sound > THRESHHOLD + 10 || sound < THRESHHOLD - 10){
-//    Serial.print(sound);
+//  if(sound > THRESHHOLD + 30 || sound < THRESHHOLD - 30){
+//    Serial.print(gate);
 //    Serial.print("\n");
 //  }
-  Serial.print(sound);
+
+  Serial.print(gate);
   Serial.print("\n");
 
-  if(hue > 255){
-    isHueIncreasing = false;
-  }
-  else if(hue < 0){
-    isHueIncreasing = true;
-  }
-  if(isHueIncreasing){
-    hue++;
-  }
-  else{
-    hue--;
-  }
-
-  if(!hasChanged){
-    if(sound > THRESHHOLD + 15 || sound < THRESHHOLD - 15){
-      rainbowNum[0] = 5;
-      hasChanged = true;
-      hasChangedCount = 0;
+  if(millis() % HUE_WAIT == 0){
+    if(hue > 255){
+      isHueIncreasing = false;
     }
-    else if((sound > THRESHHOLD + 5 || sound < THRESHHOLD - 5) && rainbowNum[0] < 3){
-      rainbowNum[0] = 3;
-      hasChanged = true;
-      hasChangedCount = 0;
+    else if(hue < 0){
+      isHueIncreasing = true;
+    }
+    if(isHueIncreasing){
+      hue++;
     }
     else{
-      rainbowNum[0]--;
-      hasChanged = true;
-      hasChangedCount = 0;
+      hue--;
     }
   }
 
-  if(rainbowNum[0] < 1){
-    rainbowNum[0] = 1;
+//  if(!hasChanged){
+//    if((sound > THRESHHOLD + 40 || sound < THRESHHOLD - 40) && rainbowNum[5] < 10){
+//      for(int i = 0; i < NUM_STRIPS; i++){
+//        rainbowNum[i] = 10;
+//      }
+//      hasChanged = true;
+//      hasChangedCount = 0;
+//    }
+//    else if((sound > THRESHHOLD + 35 || sound < THRESHHOLD - 35) && rainbowNum[5] < 9){
+//      for(int i = 0; i < NUM_STRIPS; i++){
+//        rainbowNum[i] = 9;
+//      }
+//      hasChanged = true;
+//      hasChangedCount = 0;
+//    }
+//    else if((sound > THRESHHOLD + 30 || sound < THRESHHOLD - 30) && rainbowNum[5] < 8){
+//      for(int i = 0; i < NUM_STRIPS; i++){
+//        rainbowNum[i] = 8;
+//      }
+//      hasChanged = true;
+//      hasChangedCount = 0;
+//    }
+//    else if((sound > THRESHHOLD + 35 || sound < THRESHHOLD - 35) && rainbowNum[5] < 7){
+//      for(int i = 0; i < NUM_STRIPS; i++){
+//        rainbowNum[i] = 7;
+//      }
+//      hasChanged = true;
+//      hasChangedCount = 0;
+//    }
+//    else if((sound > THRESHHOLD + 30 || sound < THRESHHOLD - 30) && rainbowNum[5] < 6){
+//      for(int i = 0; i < NUM_STRIPS; i++){
+//        rainbowNum[i] = 6;
+//      }
+//      hasChanged = true;
+//      hasChangedCount = 0;
+//    }
+//    else if((sound > THRESHHOLD + 25 || sound < THRESHHOLD - 25) && rainbowNum[5] < 5){
+//      for(int i = 0; i < NUM_STRIPS; i++){
+//        rainbowNum[i] = 5;
+//      }
+//      hasChanged = true;
+//      hasChangedCount = 0;
+//    }
+//    else if((sound > THRESHHOLD + 20 || sound < THRESHHOLD - 20) && rainbowNum[5] < 4){
+//      for(int i = 0; i < NUM_STRIPS; i++){
+//        rainbowNum[i] = 4;
+//      }
+//      hasChanged = true;
+//      hasChangedCount = 0;
+//    }
+//    else if((sound > THRESHHOLD + 15 || sound < THRESHHOLD - 15) && rainbowNum[5] < 3){
+//      for(int i = 0; i < NUM_STRIPS; i++){
+//        rainbowNum[i] = 3;
+//      }
+//      hasChanged = true;
+//      hasChangedCount = 0;
+//    }
+//    else if((sound > THRESHHOLD + 10 || sound < THRESHHOLD - 10) && rainbowNum[5] < 2){
+//      for(int i = 0; i < NUM_STRIPS; i++){
+//        rainbowNum[i] = 2;
+//      }
+//      hasChanged = true;
+//      hasChangedCount = 0;
+//    }
+//    else{
+//      for(int i = 0; i < NUM_STRIPS; i++){
+//        rainbowNum[i]--;
+//      }
+//      hasChanged = true;
+//      hasChangedCount = 0;
+//    }
+//  }
+
+  if(!hasChanged){
+    if(gate){
+      for(int i = 0; i < NUM_STRIPS; i++){
+        rainbowNum[i] = rainbowNum[i] + 2;
+      }
+    }
+    else{
+      for(int i = 0; i < NUM_STRIPS; i++){
+        rainbowNum[i]--;
+      }
+    }
+    hasChanged = true;
+    hasChangedCount = 0;
   }
-  
-  setRainbowWithWhite(0, rainbowNum[0]);
+
+  for(int i = 0; i < NUM_STRIPS; i++){
+    if(rainbowNum[i] < 1){
+      rainbowNum[i] = 1;
+    }
+    if(rainbowNum[i] > NUM_LEDS){
+      rainbowNum[i] = NUM_LEDS;
+    }
+    setRainbowWithWhite(i, rainbowNum[i]);
+  }
 
   if(hasChanged){
     hasChangedCount++;

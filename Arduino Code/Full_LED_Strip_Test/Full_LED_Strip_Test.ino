@@ -40,7 +40,7 @@ void loop() {
   else{
     hue--;
   }
-  setRainbowWithWhite(rainbowCount);
+  setRainbowWithWhite(1);
   FastLED.show();
   delay(1000/UPDATES_PER_SECOND);
 }
