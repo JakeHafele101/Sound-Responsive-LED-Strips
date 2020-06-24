@@ -54,11 +54,6 @@ void setup() {
 
 void loop() {
   int gate = digitalRead(SOUND_GATE);
-  
-//  if(sound > THRESHHOLD + 30 || sound < THRESHHOLD - 30){
-//    Serial.print(gate);
-//    Serial.print("\n");
-//  }
 
   Serial.print(gate);
   Serial.print("\n");
